@@ -6,7 +6,8 @@ def circle_find(t, con_bomb, razmer):
     sum_bomb = 0
     if t % razmer == 0:
         for i in left_side:
-            if i >= 0:
+            if 0 <= i < len(con_bomb):
+                print(i)
                 sum_bomb += con_bomb[i]
     elif t % razmer == razmer - 1:
         for i in right_side:
@@ -22,7 +23,14 @@ def circle_find(t, con_bomb, razmer):
     return sum_bomb
 
 
-# circle_find(4, [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0], 4)
+# test = [\
+#     0, 0, 0, 0, 0, 0,\
+#     0, 0, 0, 0, 1, 1, \
+#     0, 0, 1, 0, 0, 0, \
+#     0, 0, 0, 0, 0, 1, \
+#     0, 0, 0, 1, 0, 0, \
+#     0, 0, 0, 1, 0, 0]
+# print(circle_find(35, test, 6))
 # [0 0 1 0]
 # [0 0 0 0]
 # [1 0 0 1]
