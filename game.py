@@ -1,4 +1,6 @@
-"""Игра сапер, указываем число.
+# -*- coding: utf-8 -*-
+"""
+Игра сапер, указываем число.
 Функции формируют минное поле, и выводят чистое поле.
 Вводим координаты, и смотрим результат.
 """
@@ -46,10 +48,14 @@ def podskazka(x, y, con_bomb, con_field):# Вывод кол-ва мин
 
 
 def vvod_ploshadi():
+    """
+    Проверка получаемого значения для основных расчетов.
+    Проблемы отображения при значении более 10
+    """
     text_vvoda = 'Введите число для расчета площади и кол-ва мин, по умолчанию значение 6: '
     while True:
         osnov_arg = input(f'{text_vvoda}') or '6'
-        if osnov_arg.isnumeric:# Проверка на число
+        if osnov_arg.isnumeric() and (6 <= int(osnov_arg) < 11):# Проверка на число
             break
         elif osnov_arg == 'exit':
             break
@@ -85,16 +91,32 @@ def proverka_koordin(osnov_arg):
             break
         elif '.' in vvod:
             x, point, y = vvod[0], vvod[1], vvod[2:]# Через срез, для проверки на второй символ точку
-            x = ord(x.upper())# Преобразования буквы в номер ASCII
-            if (65 <= int(x) < 65 + osnov_arg) and point == '.' and (1 <= int(y) <= osnov_arg):
-            # Находится ли в диапазоне по букве, есть ли точка, Находится ли в диапазоне по числу
-                break
+            # x = ord(x.upper())# Преобразования буквы в номер ASCII
+            if x.isalpha() and y.isnumeric() :
+                x = ord(x.upper())# Преобразования буквы в номер ASCII
+                if (65 <= int(x) < 65 + osnov_arg) and \
+                    point == '.' and \
+                    (1 <= int(y) <= osnov_arg):
+                # Находится ли в диапазоне по букве, есть ли точка, 
+                # Находится ли в диапазоне по числу
+                    break
             else:
+                print('Форма записи не верна, повторите попытку')
                 continue
         else:# ВОзможно этот хвост переписать
             print('Форма записи не верна, повторите попытку')
             continue
     return x, point, y
+
+
+def add_koordin_to_win(spisok_koordinat, vvod):
+    # print(spisok_koordinat)
+    if vvod in spisok_koordinat:
+        return spisok_koordinat
+    else:
+        spisok_koordinat.append(vvod)
+        return spisok_koordinat
+
 
 def proga():# Основной код игры
     osnov_arg = vvod_ploshadi()
@@ -110,6 +132,7 @@ def proga():# Основной код игры
         while True:# Слушаем на получение координат
             vivod_poly(con_field)
             vvod = proverka_koordin(osnov_arg)
+            spisok_koordinat = add_koordin_to_win(spisok_koordinat, vvod)
             if vvod[0] == 'exit':
                 return print('Ну и уходи, а поле в минах осталось.')
             if proverka(vvod[0], vvod[2], osnov_arg, con_bomb) == False:

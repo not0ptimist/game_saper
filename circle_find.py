@@ -7,7 +7,6 @@ def circle_find(t, con_bomb, razmer):
     if t % razmer == 0:
         for i in left_side:
             if 0 <= i < len(con_bomb):
-                print(i)
                 sum_bomb += con_bomb[i]
     elif t % razmer == razmer - 1:
         for i in right_side:
