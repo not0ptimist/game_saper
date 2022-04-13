@@ -4,15 +4,19 @@
 Функции формируют минное поле, и выводят чистое поле.
 Вводим координаты, и смотрим результат.
 """
+import datetime
 import numpy as np
-from circle_find import circle_find
+
+from lib.circle_find import circle_find
+from lib.connect_db import conn_db
 
 
 def construct_bombs(bomb):# Конструктор поля с минами
     all_field = bomb ** 2# Длина поля
-    zeros = np.zeros((all_field), dtype=np.int32)
+    zeros = np.zeros((all_field), dtype=np.int)
     zeros[:bomb] = 1# Заполняем первую "строчку", мнимого квадратного поля
     np.random.shuffle(zeros)
+    zeros = zeros.tolist()# При добавлении в базу ругается на тип np.ndarray
     print(zeros)# Указан для лучшего тестирования, в продакшене убрать
     return zeros
 
@@ -118,8 +122,10 @@ def add_koordin_to_win(spisok_koordinat, vvod):
         return spisok_koordinat
 
 
-def proga():# Основной код игры
+def pod_proga():# Основной код игры
+    name = 'Egor'# Покачто статичное имя
     osnov_arg = vvod_ploshadi()
+    st_gm = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if osnov_arg == 'exit':
         return 'Спасибо что запустили игру.'
     else:
@@ -136,12 +142,22 @@ def proga():# Основной код игры
             if vvod[0] == 'exit':
                 return print('Ну и уходи, а поле в минах осталось.')
             if proverka(vvod[0], vvod[2], osnov_arg, con_bomb) == False:
-                return print('BOOM!!!')
+                sp_gm = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                return [name, con_bomb, st_gm, sp_gm, False]
             else:
                 if len(spisok_koordinat) == len(con_bomb) - osnov_arg:
-                    return print('You WIN !!!')# Победа.
+                    sp_gm = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    return [name, con_bomb, st_gm, sp_gm, True]
                 podskazka(vvod[0], vvod[2], con_bomb, con_field)
 
+
+def proga():
+    result = pod_proga()
+    if result[4] == '1':
+        print('You win !!!')
+    else:
+        print('You Lose !!!')
+    conn_db(result)# Записываем в БД результат
 
 if __name__ == '__main__':
     proga()
