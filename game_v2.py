@@ -4,16 +4,17 @@
 import datetime
 import numpy as np
 
-# from lib.circle_find import circle_find
+from lib.circle_find import circle_find
 # from lib.connect_db import conn_db
 
 
 class test:
 
     def construct_bombs_v2(self, bomb):
-        '''Нужно придумать рандомайзер на встроенных библиотеках'''
+        '''Создание строки со случайными единицами/минами.
+        Нужно придумать рандомайзер на встроенных библиотеках'''
         all_field = bomb ** 2# Длина поля
-        zeros = np.zeros((all_field), dtype=np.int)
+        zeros = np.zeros((all_field), dtype=np.int32)
         zeros[:bomb] = 1# Заполняем первую "строчку", мнимого квадратного поля
         np.random.shuffle(zeros)
         zeros = zeros.tolist()# При добавлении в базу ругается на тип np.ndarray
@@ -22,6 +23,7 @@ class test:
 
 
     def construct_field_v2(self, osnov_arg):
+        '''Проектирует отображаемое поле'''
         col_alpha = []
         zero_stroki = [0 for i in range(osnov_arg)]
         for i in range(osnov_arg + 1):
@@ -44,6 +46,7 @@ class test:
 
 
     def vvod_ploshadi_v2(self):
+        '''ошибка при вводе b3'''
         text_vvoda = 'Введите число для расчета площади и кол-ва мин, по умолчанию значение 6: '
         while True:
             osnov_arg = input(f'{text_vvoda}') or '6'
@@ -81,6 +84,7 @@ class test:
     
 
     def add_koordin_to_win(self, spisok_koordinat, vvod):
+        '''Заполнения уникальными координатами, для проверки на пустые значения'''
         # print(spisok_koordinat)
         if vvod in spisok_koordinat:
             return spisok_koordinat
@@ -90,6 +94,7 @@ class test:
     
 
     def proverka_v2(self, vvod, con_bomb):
+        '''Проверка координат на мину, возвращает True, False, как переключатель для действия'''
         a, n = vvod[0], vvod[1:]
         print(vvod, a, n)
         a = int(ord(a.upper()))
@@ -100,8 +105,53 @@ class test:
             return True
 
 
-    def podskazka_v2(self, vvod, con_bomb, con_field):
-        pass
+    def podskazka_v2(self, razmer, vvod, bomb, field):
+        '''Переписать.Прописывает сумму ближайших мин'''
+        a, n = vvod[0], vvod[1:]
+        a = a.upper()
+        n = int(n) - 1
+        ai = int(ord(a))
+        tochka = ((ai - 65) * razmer) + n
+        num_bomb = circle_find(tochka, bomb, razmer)
+        print('1', field)
+        print(type(num_bomb), type(a), type(n), type(field), type(bomb))
+        # print(num_bomb, a, n, con_field[a][n], bomb)
+        # field = field.copy()
+
+        # Написано 4 способа, но все почемуто записывают кол-во ближайших мин, во все строчки, кроме первой
+        # Притом что если отдельно запускать как метод или функцию, то все хорошо.
+        # Способ 1
+        field[a][n] = num_bomb
+        
+        # Способ 2
+        # # field_s = field.copy()
+        # str_n = field[a]
+        # str_n[n] = num_bomb
+        # field[a] = str_n
+
+        # Способ 3
+        # str_n = field[a]
+        # str_n[n] = num_bomb
+        # upd_str = {a:str_n}
+        # # print('1', field_s)
+        # field.update(upd_str.items())
+
+        # Способ 4
+        # field = self.kostil(field, num_bomb, ai, n)
+
+        print('2', field)
+        return field
+    
+    def kostil(self, field, num_bomb, ai, n):
+        f = list(field.items())
+        bukv = ai - 64
+        str_n = f[bukv][1]
+        str_n[n] = num_bomb
+        print(bukv, n, f[1][1])
+        f[bukv][1][n] = num_bomb
+        f = dict(f)
+        return f
+        
 
 
     def pod_proga_v2(self):
@@ -115,6 +165,7 @@ class test:
             osnov_arg = int(osnov_arg)# Сразу меняем на число, т.к. потом только числом нужен данный аргумент
             con_bomb = self.construct_bombs_v2(osnov_arg)
             con_field = self.construct_field_v2(osnov_arg)
+            print('0', con_field)
             spisok_koordinat = []
             while True:
                 self.vivod_poly_v2(con_field)
@@ -127,9 +178,11 @@ class test:
                 else:
                     if len(spisok_koordinat) == len(con_bomb) - osnov_arg:#Если длины равны, то пустых клеток нет для хода
                         return True
-                    self.podskazka_v2(vvod, con_bomb, con_field)
+                    print('0', con_field)
+                    con_field = self.podskazka_v2(osnov_arg, vvod, con_bomb, con_field)
+                    print(con_field)
                 
-        return osnov_arg
+        # return osnov_arg
 
 
     def proga(self):
@@ -152,4 +205,9 @@ q = a.proga()
 # q = a.construct_field_v2(6)
 # d = {'@': [1, 1, 1, 1, 1, 1], 'A': [0, 0, 0, 0, 0, 0], 'B': [0, 0, 0, 0, 0, 0], 'C': [0, 0, 0, 0, 0, 0], 'D': [0, 0, 0, 0, 0, 0], 'E': [0, 0, 0, 0, 0, 0], 'F': [0, 0, 0, 0, 0, 0]}
 # q = a.vivod_poly_v2(d)
+# osnov_arg = 6
+# vvod = 'b3'
+# con_bomb = [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+# con_field = {'@': [1, 2, 3, 4, 5, 6], 'A': [0, 0, 0, 0, 0, 0], 'B': [0, 0, 0, 0, 0, 0], 'C': [0, 0, 0, 0, 0, 0], 'D': [0, 0, 0, 0, 0, 0], 'E': [0, 0, 0, 0, 0, 0], 'F': [0, 0, 0, 0, 0, 0]}
+# q = a.podskazka_v2(osnov_arg, vvod, con_bomb, con_field)
 print(q)
